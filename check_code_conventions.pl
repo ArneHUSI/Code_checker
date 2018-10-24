@@ -81,7 +81,7 @@ sub check_coding_convention_const {
 }
 
 sub get_fun_check {
-  my $stripped_string = $_[0] =~ s/^[ ]*\([ ]*check-\w+[ ]+\([ ]*(\w+\b).*/$1/r;
+  my $stripped_string = $_[0] =~ s/^[ ]*\([ ]*check-\w+[ ]+\([ ]*([a-zA-Z\-0-9\+]+).*/$1/r;
   push( @checks, $stripped_string);
 }
 
