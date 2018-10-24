@@ -27,7 +27,7 @@ my $pSignature = qr/(?<!-)->/;
 my $pFun = qr/^[ ]*\([ ]*define[ ]*\(\w+/;
 my $pStat = qr/^[ ]*\([ ]*define[ ]+\w+/;
 my $pStruct = qr/^[ ]*\([ ]*define-struct[ ]+\w/;
-my $pPurpose = qr/(Purpose|purpose|Given.*return)/;
+my $pPurpose = qr/(Purpose|purpose|Given.*return|Interpretation)/;
 my $pInterpretation = qr/(I|i)nterpretation/;
 
 # List of function names
@@ -50,15 +50,17 @@ sub reset_checks {
 }
 
 sub get_number_arg_signature {
-  my $stripped_string = $_[0] =~ s/.*:|->.*//r; # remove everything before : and after ->
+  my $stripped_string = $_[0] =~ s/\;|.*:|\-\>.*//gr; # remove everything before : and after ->
   #print "get_number_arg_signature : Stripped_string $stripped_string\n\n";
-  return () = $stripped_string =~ /\w\b/gi;
+  my $n = () = $stripped_string =~ /[\w0-9] \w/gi;
+  return $n+1;
 }
 
 sub get_number_arg_fundef {
-  my $stripped_string = $_[0] =~ s/.*define \([a-zA-Z\-0-9\+]+ ([a-zA-Z0-9\- ]*)\).*/$1/r;
+  my $stripped_string = $_[0] =~ s/.*define \([a-zA-Z\-0-9\+]+ ([a-zA-Z0-9_\- ]*)\).*/$1/r;
   #print "get_number_arg_fundef : Stripped_string $stripped_string\n\n";
-  return () = $stripped_string =~ /\w\b/gi;
+  my $n = () = $stripped_string =~ /[\w0-9] \w/gi;
+  return $n+1;
 }
 
 # Checks whether the coding convention for functions is satisfied
@@ -101,6 +103,7 @@ sub check_code {
         print "$lineCtr: Function does not have a purpose statement: $l\n";
       }
 
+      print "    Signature: $signature, Number of arguments :".get_number_arg_fundef($l)."\n";
       if ( $signature != get_number_arg_fundef( $l) ) {
         print "$lineCtr: Number of arguments (".get_number_arg_fundef($l).") does not match the number of arguments in the signature ($signature)\n";
       }
