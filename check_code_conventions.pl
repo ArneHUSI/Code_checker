@@ -103,7 +103,7 @@ sub check_code {
         print "$lineCtr: Function does not have a purpose statement: $l\n";
       }
 
-      print "    Signature: $signature, Number of arguments :".get_number_arg_fundef($l)."\n";
+      #print "    Signature: $signature, Number of arguments :".get_number_arg_fundef($l)."\n";
       if ( $signature != get_number_arg_fundef( $l) ) {
         print "$lineCtr: Number of arguments (".get_number_arg_fundef($l).") does not match the number of arguments in the signature ($signature)\n";
       }
@@ -168,13 +168,17 @@ for my $l (@lines) {
 if ( @checks == 0 ) {
   print "No checks!\n";
 } else {
-  print "No checks for: ";
+  my $local_str = "";
   for my $f (@fun_names) {
     my @matches = grep { /$f/ } @checks;
     if ( @matches == 0  ) {
-      print "$f, ";
+      $local_str .= "$f, ";
     }
   }
-  print "\n";
+  if ( $local_str eq '' ) {
+    print "Everything checked!\n"
+  } else {
+    print "No checks for: $local_str \n";
+  }
 }
 
