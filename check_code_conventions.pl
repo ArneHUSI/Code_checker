@@ -27,8 +27,8 @@ my $pSignature = qr/(?<!-)->/;
 my $pFun = qr/^[ ]*\([ ]*define[ ]*\(\w+/;
 my $pStat = qr/^[ ]*\([ ]*define[ ]+\w+/;
 my $pStruct = qr/^[ ]*\([ ]*define-struct[ ]+\w/;
-my $pPurpose = qr/(Purpose|purpose|Given.*return|Interpretation)/;
-my $pInterpretation = qr/(I|i)nterpretation/;
+my $pPurpose = qr/(Purpose|purpose|.*Given.*return|given.*return|return.*given|Interpretation)/i;
+my $pInterpretation = qr/(Interpretation|Interp)/i;
 
 # List of function names
 my @fun_names = ();
@@ -52,15 +52,15 @@ sub reset_checks {
 sub get_number_arg_signature {
   my $stripped_string = $_[0] =~ s/\;|.*:|\-\>.*//gr; # remove everything before : and after ->
   #print "get_number_arg_signature : Stripped_string $stripped_string\n\n";
-  my $n = () = $stripped_string =~ /[\w0-9] \w/gi;
-  return $n+1;
+  my $n = () = $stripped_string =~ /\S+/g;
+  return $n;
 }
 
 sub get_number_arg_fundef {
   my $stripped_string = $_[0] =~ s/.*define \([a-zA-Z\-0-9\+]+ ([a-zA-Z0-9_\- ]*)\).*/$1/r;
   #print "get_number_arg_fundef : Stripped_string $stripped_string\n\n";
-  my $n = () = $stripped_string =~ /[\w0-9] \w/gi;
-  return $n+1;
+  my $n = () = $stripped_string =~ /\S+/g;
+  return $n;
 }
 
 # Checks whether the coding convention for functions is satisfied

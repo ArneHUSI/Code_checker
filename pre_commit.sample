@@ -4,8 +4,11 @@
 # The commit should not fail but print the checks to a file.
 
 # Get all Racket files that are to be committed
-files=$(git diff --cached --name-only --diff-filter=A | find . -name "*.rkt" -type f)
+files=$(git diff --cached --name-only --diff-filter=A)
 
 for i in $files; do
-  perl check-code.pl $i > echo "${i/\.rkt/}_checks.txt"
-  done
+  if [[ $i == "*.rkt" ]]
+  then
+    perl ./Code_checker/check_code_conventions.pl $i > echo "${i/\.rkt/}_checks.txt"
+  fi
+done
