@@ -18,10 +18,6 @@ while(<$fh>) {
 } 
 close $fh;
 
-# Error messages 
-my $errorConst = "; Comment: The name of you constant object does not respect the coding convention";
-my $errorFun = "; Comment: The name of you function does not respect the coding convention";
-
 # Patterns
 my $pSignature = qr/(?<!-)->/;
 my $pFun = qr/^[ ]*\([ ]*define[ ]*\(\w+/;
@@ -72,7 +68,7 @@ sub get_number_arg_fundef {
 # Checks whether the coding convention for functions is satisfied
 # and add name to fun_names
 sub check_coding_convention_fun {
-  my $stripped_string = $_[0] =~ s/^[ ]*\([ ]*define[ ]+\([ ]*([a-zA-Z\-0-9\+]+).*/$1/r;
+  my $stripped_string = $_[0] =~ s/^[ ]*\([ ]*define[ ]+\([ ]*([a-zA-Z\-0-9\+\_]+).*/$1/r;
   push( @fun_names, $stripped_string);
   if ( $stripped_string =~ m/[A-Z_]/ ) {
     print "$_[1]: Illegal Character in function defintion $_[0]\n";
@@ -96,7 +92,7 @@ sub check_coding_convention_type {
   # Check whether it is CamelCase
   my $stripped_string = $_[0] =~ s/^[ ]*\([ ]*define-struct[ ]+([\w\-_]+\b)[ ]*\[.*/$1/r;
   #print "check_coding_convention_type: Stripped_string $stripped_string\n\n";
-  if ( $stripped_string =~ m/[\-_]/  ) {
+  if ( $stripped_string =~ m/[A-Z\-_]/  ) {
     print "$_[1]: Illegal Character ('-' or '_') in type definition: $_[0]\n";
   }
   if ( $stripped_string =~ m/\b[a-z]+/  ) {
@@ -140,12 +136,14 @@ sub check_code {
       check_coding_convention_type( $l, $lineCtr);
     }
 
-    reset_checks();
   }
 
   if ( $l =~ m/check-/ ) {
     get_fun_check( $l);
   }
+
+  reset_checks();
+
 }
 
 sub check_comments {
@@ -172,12 +170,12 @@ for my $l (@lines) {
   $lineCtr++;
 
   # Skip empty lines and empty comments
-  if ( $l =~ m/^[\;]*[ ]*$/ ) {
+  if ( $l =~ m/^[ ]*[\;]*[ ]*$/ ) {
     next;
   }
 
   # If the line is not a comment: check for definition
-  if ( $l !~ m/^\;/ ) {
+  if ( $l !~ m/^[ ]*\;/ ) {
     check_code( $l);
   } else {
     check_comments( $l);
@@ -189,7 +187,7 @@ for my $l (@lines) {
 #print( "@fun_names", ",");
 
 if ( @checks == 0 ) {
-  print "No checks!\n";
+  print "No tests!\n";
 } else {
   my $local_str = "";
   for my $f (@fun_names) {
@@ -199,9 +197,9 @@ if ( @checks == 0 ) {
     }
   }
   if ( $local_str eq '' ) {
-    print "Everything checked!\n"
+    print "Everything tested!\n"
   } else {
-    print "No checks for: $local_str \n";
+    print "No tests for: $local_str \n";
   }
 }
 
