@@ -22,7 +22,7 @@ close $fh;
 my $pSignature = qr/(?<!-)->/;
 my $pFun = qr/^[ ]*\([ ]*define[ ]*\(\w+/;
 my $pConst = qr/^[ ]*\([ ]*define[ ]+\w+/;
-my $pType = qr/^[ ]*\([ ]*define-struct[ ]+\w/;
+my $pStruct = qr/^[ ]*\([ ]*define-struct[ ]+\w/;
 my $pPurpose = qr/(Purpose|purpose|.*Given.*return|given.*return|return.*given|Interpretation)/i;
 my $pInterpretation = qr/(Interpretation|Interp)/i;
 
@@ -58,8 +58,9 @@ sub get_number_arg_signature {
   return $n;
 }
 
+# \S ... match a non-whitespace character
 sub get_number_arg_fundef {
-  my $stripped_string = $_[0] =~ s/.*define \([a-zA-Z\-0-9\+]+ ([a-zA-Z0-9_\- ]*)\).*/$1/r;
+  my $stripped_string = $_[0] =~ s/.*define \(\S+ ([a-zA-Z0-9_\- ]*)\).*/$1/r;
   #print "get_number_arg_fundef : Stripped_string $stripped_string\n\n";
   my $n = () = $stripped_string =~ /\S+/g;
   return $n;
@@ -68,7 +69,7 @@ sub get_number_arg_fundef {
 # Checks whether the coding convention for functions is satisfied
 # and add name to fun_names
 sub check_coding_convention_fun {
-  my $stripped_string = $_[0] =~ s/^[ ]*\([ ]*define[ ]+\([ ]*([a-zA-Z\-0-9\+\_]+).*/$1/r;
+  my $stripped_string = $_[0] =~ s/^[ ]*\([ ]*define[ ]+\([ ]*(\S+) .*/$1/r;
   push( @fun_names, $stripped_string);
   if ( $stripped_string =~ m/[A-Z_]/ ) {
     print "$_[1]: Illegal Character in function defintion $_[0]\n";
@@ -84,19 +85,16 @@ sub check_coding_convention_const {
   return;
 }
 
-sub check_coding_convention_type {
+sub check_coding_convention_struct {
   if ( $interpretation == 0 ) {
-    print "$_[1]: Type definition does not have an interpretation: $_[0]\n";
+    print "$_[1]: Struct definition does not have an interpretation: $_[0]\n";
   }
 
   # Check whether it is CamelCase
-  my $stripped_string = $_[0] =~ s/^[ ]*\([ ]*define-struct[ ]+([\w\-_]+\b)[ ]*\[.*/$1/r;
+  my $stripped_string = $_[0] =~ s/^[ ]*\([ ]*define-struct[ ]+(\S+\b)[ ]*\[.*/$1/r;
   #print "check_coding_convention_type: Stripped_string $stripped_string\n\n";
-  if ( $stripped_string =~ m/[A-Z\-_]/  ) {
-    print "$_[1]: Illegal Character ('-' or '_') in type definition: $_[0]\n";
-  }
-  if ( $stripped_string =~ m/\b[a-z]+/  ) {
-    print "$_[1]: Illegal Character (CamelCase starts with capital) in type definition: $_[0]\n";
+  if ( $stripped_string =~ m/[A-Z_]/  ) {
+    print "$_[1]: Illegal Character struct definition: $_[0]\n";
   }
   return;
 }
@@ -132,8 +130,8 @@ sub check_code {
       check_coding_convention_const( $l, $lineCtr);
     }
 
-    if ( $l =~ m/$pType/ ) {
-      check_coding_convention_type( $l, $lineCtr);
+    if ( $l =~ m/$pStruct/ ) {
+      check_coding_convention_struct( $l, $lineCtr);
     }
 
   }
