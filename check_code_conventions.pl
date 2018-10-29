@@ -19,14 +19,14 @@ while(<$fh>) {
 close $fh;
 
 # Error messages 
-my $errorStat = "; Comment: The name of you static object does not respect the coding convention";
+my $errorConst = "; Comment: The name of you constant object does not respect the coding convention";
 my $errorFun = "; Comment: The name of you function does not respect the coding convention";
 
 # Patterns
 my $pSignature = qr/(?<!-)->/;
 my $pFun = qr/^[ ]*\([ ]*define[ ]*\(\w+/;
-my $pStat = qr/^[ ]*\([ ]*define[ ]+\w+/;
-my $pStruct = qr/^[ ]*\([ ]*define-struct[ ]+\w/;
+my $pConst = qr/^[ ]*\([ ]*define[ ]+\w+/;
+my $pType = qr/^[ ]*\([ ]*define-struct[ ]+\w/;
 my $pPurpose = qr/(Purpose|purpose|.*Given.*return|given.*return|return.*given|Interpretation)/i;
 my $pInterpretation = qr/(Interpretation|Interp)/i;
 
@@ -53,6 +53,12 @@ sub get_number_arg_signature {
   my $stripped_string = $_[0] =~ s/\;|.*:|\-\>.*//gr; # remove everything before : and after ->
   #print "get_number_arg_signature : Stripped_string $stripped_string\n\n";
   my $n = () = $stripped_string =~ /\S+/g;
+  if ( $stripped_string =~ m/[\-_]/ ) {
+    print "$_[1]: Illegal Character in types of signature: $_[0]\n";
+  }
+  if ( $stripped_string =~ m/\b[a-z]+/  ) {
+    print "$_[1]: Illegal Character in types of signature (CamelCase starts with capital): $_[0]\n";
+  }
   return $n;
 }
 
@@ -75,9 +81,26 @@ sub check_coding_convention_fun {
 }
 
 sub check_coding_convention_const {
-  my $stripped_string = $_[0] =~ s/^[ ]*\([ ]*define[ ]+(\w+\b).*/$1/r;
+  my $stripped_string = $_[0] =~ s/^[ ]*\([ ]*define[ ]+([\w\-_]+\b).*/$1/r;
   if ( $stripped_string =~ m/[a-z_]/ ) {
-    print "$_[1]: Illegal Character in constant definition in line: $_[0]\n";
+    print "$_[1]: Illegal Character in constant definition: $_[0]\n";
+  }
+  return;
+}
+
+sub check_coding_convention_type {
+  if ( $interpretation == 0 ) {
+    print "$_[1]: Type definition does not have an interpretation: $_[0]\n";
+  }
+
+  # Check whether it is CamelCase
+  my $stripped_string = $_[0] =~ s/^[ ]*\([ ]*define-struct[ ]+([\w\-_]+\b)[ ]*\[.*/$1/r;
+  #print "check_coding_convention_type: Stripped_string $stripped_string\n\n";
+  if ( $stripped_string =~ m/[\-_]/  ) {
+    print "$_[1]: Illegal Character ('-' or '_') in type definition: $_[0]\n";
+  }
+  if ( $stripped_string =~ m/\b[a-z]+/  ) {
+    print "$_[1]: Illegal Character (CamelCase starts with capital) in type definition: $_[0]\n";
   }
   return;
 }
@@ -109,12 +132,12 @@ sub check_code {
       }
     }
 
-    if ( $l =~ m/$pStat/ ) {
+    if ( $l =~ m/$pConst/ ) {
       check_coding_convention_const( $l, $lineCtr);
     }
 
-    if ( $l =~ m/define-struct/ and  $interpretation == 0 ) {
-      print "$lineCtr: Struct definition does not have an interpretation: $l\n";
+    if ( $l =~ m/$pType/ ) {
+      check_coding_convention_type( $l, $lineCtr);
     }
 
     reset_checks();
@@ -138,7 +161,7 @@ sub check_comments {
 
   if ( $l =~ m/$pSignature/ ) {
     if ( $signature == 0 ) {
-      $signature = get_number_arg_signature( $l);
+      $signature = get_number_arg_signature( $l, $lineCtr);
     } else {
       print "$lineCtr: Second signature: $l\n";
     }
