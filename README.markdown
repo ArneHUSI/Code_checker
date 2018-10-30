@@ -19,3 +19,4 @@ The optional variable `line_ctr_offset` sets an offset to compensate for additio
 * The script does not distinguish function templates and actual functions. Error messages for function templates and `main` may be ignored.
 * If the script goes through without errors, it does NOT guarantee that you code is syntactically correct.
 * If documentations are NOT above the definition they refer to, the script will not find it.
+* The script does not work if you paste images into your racket code (using DrRacket).
