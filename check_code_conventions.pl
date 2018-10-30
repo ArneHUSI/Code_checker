@@ -6,6 +6,10 @@
 use strict;
 use warnings;
 
+if ( @ARGV == 0 ) {
+  print "Use: perl check_code_convention.pl file.rkt [line_ctr_offset]\n";
+  exit
+}
 print "Checking File $ARGV[0]\n";
 
 # Read in file
@@ -37,6 +41,9 @@ my $purpose = 0; # Set to 1 if purpose is found
 my $interpretation = 0; # Set to 1 if interpretation is found (for structs)
 
 my $lineCtr = 0; # line counter
+if ( scalar @ARGV == 2 ) {
+  $lineCtr = $ARGV[1];
+}
 
 sub reset_checks {
   $signature = 0;
@@ -122,7 +129,11 @@ sub check_code {
 
       #print "    Signature: $signature, Number of arguments :".get_number_arg_fundef($l)."\n";
       if ( $signature != get_number_arg_fundef( $l) ) {
-        print "$lineCtr: Number of arguments (".get_number_arg_fundef($l).") does not match the number of arguments in the signature ($signature)\n";
+        if ( $signature == 0 ) {
+          print "$lineCtr: No signature for function: $l\n";
+        } else {
+          print "$lineCtr: Number of arguments (".get_number_arg_fundef($l).") does not match the number of arguments in the signature ($signature)\n";
+        }
       }
     }
 
