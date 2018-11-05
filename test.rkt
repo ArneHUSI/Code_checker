@@ -31,3 +31,6 @@
 
 ; func_withWrong_sign: number number --> number
 (define (func_withWrong_sign r s) (* 4 5 ))
+
+; func: [T1 -> T2] T1 -> T2
+(define (f g h) (g h))
