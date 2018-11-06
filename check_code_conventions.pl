@@ -6,15 +6,35 @@
 use strict;
 use warnings;
 
+my $lineCtr = 0; # line counter
+my $checkPurpose = 0;
+my $filename = "";
+
 if ( @ARGV == 0 ) {
-  print "Use: perl check_code_convention.pl file.rkt [line_ctr_offset]\n";
+  print "Use: perl check_code_convention.pl [-p|p] file.rkt [line_ctr_offset]\n";
   exit
+} else {
+  my @fn= grep( /.*\.rkt/, @ARGV);
+  if ( @fn != 0 ) {
+    $filename = $fn[0];
+  } else { 
+    print "No .rkt file given";
+    exit
+  }
+  my @offset = grep( /[0-9]+/, @ARGV);
+  if ( @offset != 0 ) {
+    $lineCtr = $offset[0];
+  }
+  if ( /^[\-]*p$/ ~~ @ARGV ) {
+    $checkPurpose = 1;
+  } 
 }
-print "Checking File $ARGV[0]\n";
+
+print "Checking File $filename\n";
 
 # Read in file
 my @lines;
-open(my $fh, "<", $ARGV[0])
+open(my $fh, "<", $filename)
   or die "Failed to open file: $!\n";
 while(<$fh>) { 
   chomp; 
@@ -39,11 +59,6 @@ my @struct_args = ();
 my $signature = 0; # Set to number of variables if "->" is found
 my $purpose = 0; # Set to 1 if purpose is found
 my $interpretation = 0; # Set to 1 if interpretation is found (for structs)
-
-my $lineCtr = 0; # line counter
-if ( scalar @ARGV == 2 ) {
-  $lineCtr = $ARGV[1];
-}
 
 sub reset_checks {
   $signature = 0;
@@ -127,7 +142,7 @@ sub check_code {
 
       check_coding_convention_fun( $l, $lineCtr);
 
-      if ( $purpose == 0 ) {
+      if ( $purpose == 0 and $checkPurpose != 0 ) {
         print "$lineCtr: Function does not have a purpose statement: $l\n";
       }
 
