@@ -54,7 +54,7 @@ sub reset_checks {
 
 sub get_number_arg_signature {
   # First remove "->" encapsulated in parentheses
-  my $stripped_string = $_[0] =~ s{(\[ .*? \])}{$1 =~ y/\-\>//dr}gexr
+  my $stripped_string = $_[0] =~ s{(\[ .*? \])}{$1 =~ y/\-\>//dr}gexr;
   # remove everything before : and after ->
   $stripped_string =~ s/\;|.*:|\-\>.*//g; 
   if ( $stripped_string =~ m/[\-_]/ ) {
@@ -63,7 +63,7 @@ sub get_number_arg_signature {
   if ( $stripped_string =~ m/\b[a-z]+/  ) {
     print "$_[1]: Illegal Character in types of signature (CamelCase starts with capital): $_[0]\n";
   }
-  $stripped_string =~ s{(\[ .*? \])}{$1 =~ y/ //dr}gex
+  $stripped_string =~ s{(\[ .*? \])}{$1 =~ y/ //dr}gex;
   #print "get_number_arg_signature : Stripped_string $stripped_string\n\n";
   my $n = () = $stripped_string =~ /\S+/g;
   return $n;
