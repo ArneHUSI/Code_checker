@@ -73,10 +73,10 @@ sub get_number_arg_signature {
   # remove everything before : and after ->
   $stripped_string =~ s/\;|.*:|\-\>.*//g; 
   if ( $stripped_string =~ m/[\-_]/ ) {
-    print "$_[1]: Illegal Character in types of signature: $_[0]\n";
+    print "$_[1]: Illegal Character in signature (types should be camel case): $_[0]\n";
   }
   if ( $stripped_string =~ m/\b[a-z]+/  ) {
-    print "$_[1]: Illegal Character in types of signature (CamelCase starts with capital): $_[0]\n";
+    print "$_[1]: Illegal Character in signature (types should be camel case): $_[0]\n";
   }
   $stripped_string =~ s{(\[ .*? \])}{$1 =~ y/ //dr}gex;
   #print "get_number_arg_signature : Stripped_string $stripped_string\n\n";
@@ -98,7 +98,7 @@ sub check_coding_convention_fun {
   my $stripped_string = $_[0] =~ s/^[ ]*\([ ]*define[ ]+\([ ]*(\S+) .*/$1/r;
   push( @fun_names, $stripped_string);
   if ( $stripped_string =~ m/[A-Z_]/ ) {
-    print "$_[1]: Illegal Character in function defintion $_[0]\n";
+    print "$_[1]: Illegal Character in function defintion (function names should be kebab case): $_[0]\n";
   }
   return;
 }
@@ -106,7 +106,7 @@ sub check_coding_convention_fun {
 sub check_coding_convention_const {
   my $stripped_string = $_[0] =~ s/^[ ]*\([ ]*define[ ]+([\w\-_]+\b).*/$1/r;
   if ( $stripped_string =~ m/[a-z_]/ ) {
-    print "$_[1]: Illegal Character in constant definition: $_[0]\n";
+    print "$_[1]: Illegal Character in constant definition (constants should be all capitalized): $_[0]\n";
   }
   return;
 }
