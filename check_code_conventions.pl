@@ -137,10 +137,14 @@ sub check_code {
   my $l = $_[0];
 
   if ( $l =~ m/define/ ) {
+
+    # Ignore line if either there is a local definition or a preceeding unclosed local definition
+    # NB: does not recognize the corresponding braces but mere the next one. Nested expressions 
+    # migh be problematic.
     if ( $local == 0 and $l =~ m/$pLocal/ and $l !~ m/\]/) {
       $local = 1;
       return;
-    } elsif ( $local == 1 and $l !~ m/\]/ ) {
+    } elsif ( ($local == 1 and $l !~ m/\]/) or ($local == 0 and $l =~ m/$pLocal/ and $l =~ m/\]/ )) {
       return;
     } elsif ( $local == 1 and $l =~ m/\]/ ) {
       $local = 0;
