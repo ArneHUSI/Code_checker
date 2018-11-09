@@ -49,6 +49,7 @@ my $pConst = qr/^[ ]*\([ ]*define[ ]+\w+/;
 my $pStruct = qr/^[ ]*\([ ]*define-struct[ ]+\w/;
 my $pPurpose = qr/(Purpose|purpose|.*Given.*return|given.*return|return.*given|Interpretation)/i;
 my $pInterpretation = qr/(Interpretation|Interp)/i;
+my $pLocal = qr/^[ ]*\([ ]*local[ ]*\[/;
 
 # List of function names
 my @fun_names = ();
@@ -59,11 +60,13 @@ my @struct_args = ();
 my $signature = 0; # Set to number of variables if "->" is found
 my $purpose = 0; # Set to 1 if purpose is found
 my $interpretation = 0; # Set to 1 if interpretation is found (for structs)
+my $local = 0; # Set to 1 if local definitions
 
 sub reset_checks {
   $signature = 0;
   $purpose = 0;
   $interpretation = 0;
+  $local = 0;
   return;
 }
 
@@ -134,6 +137,15 @@ sub check_code {
   my $l = $_[0];
 
   if ( $l =~ m/define/ ) {
+    if ( $local == 0 and $l =~ m/$pLocal/ and $l !~ m/\]/) {
+      $local = 1;
+      return;
+    } elsif ( $local == 1 and $l !~ m/\]/ ) {
+      return;
+    } elsif ( $local == 1 and $l =~ m/\]/ ) {
+      $local = 0;
+      return;
+    }
 
     # If line contains a function definition check for signature and purpose
     if ( $l =~ m/$pFun/ ) {
