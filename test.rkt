@@ -34,3 +34,9 @@
 
 ; func: [T1 -> T2] T1 -> T2
 (define (f g h) (g h))
+
+; List<City> View -> List<CityPlot>
+; The position is scaled using the given view window.
+; For example, if the view is (make-view 10 10 20 20) then a city at
+; (make-city 10 10 ...) is drawn at 0,HEIGHT
+(define (rescale-cities cities view) ())
