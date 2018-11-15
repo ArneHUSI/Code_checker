@@ -55,6 +55,7 @@ my $pLocal = qr/^[ ]*\([ ]*local[ ]*\[/;
 my @fun_names = ();
 my @checks = ();
 my @struct_args = ();
+my @structs = ();
 
 # Check variables
 my $signature = 0; # Set to number of variables if "->" is found
@@ -120,11 +121,15 @@ sub check_coding_convention_struct {
   }
 
   # Check whether it is CamelCase
-  my $stripped_string = $_[0] =~ s/^[ ]*\([ ]*define-struct[ ]+(\S+\b)[ ]*\[.*/$1/r;
-  #print "check_coding_convention_type: Stripped_string $stripped_string\n\n";
-  if ( $stripped_string =~ m/[A-Z_]/  ) {
-    print "$_[1]: Illegal Character struct definition: $_[0]\n";
+  if ( $_[0] =~ m/[A-Z_]/  ) {
+    print "$_[1]: Illegal Character struct definition (no caps or underscores): $_[0]\n";
   }
+  my $stripped_string = $_[0] =~ s/^[ ]*\([ ]*define-struct[ ]+(\S+\b)[ ]*\[.*/$1/r;
+  push( @structs, $stripped_string);
+  #print "check_coding_convention_type: Stripped_string $stripped_string\n\n";
+  #if ( $stripped_string =~ m/[A-Z_]/  ) {
+  #  print "$_[1]: Illegal Character struct definition: $_[0]\n";
+  #}
   return;
 }
 
@@ -245,5 +250,13 @@ if ( @checks == 0 ) {
   } else {
     print "No tests for: $local_str \n";
   }
+}
+
+if ( @structs != 0 ) {
+  my $local_str = "Defined structs: ";
+  for my $s (@structs) {
+    $local_str .= "$s, ";
+  }
+  print $local_str."\n";
 }
 
