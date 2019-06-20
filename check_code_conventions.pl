@@ -79,7 +79,7 @@ sub get_number_arg_signature {
   if ( $stripped_string =~ m/[\-_]/ ) {
     print "$_[1]: Illegal Character in signature (types should be camel case): $_[0]\n";
   }
-  if ( $stripped_string =~ m/\b[a-z]+/  ) {
+  if ( $stripped_string =~ m/\b([A-Z0-9][a-z0-9]+)*/  ) {
     print "$_[1]: Illegal Character in signature (types should be camel case): $_[0]\n";
   }
   $stripped_string =~ s{(\[ .*? \])}{$1 =~ y/ //dr}gex;
